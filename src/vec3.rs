@@ -1,6 +1,7 @@
 extern crate overload;
 use overload::overload;
 use std::ops;
+use Vec3 as Color;
 
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub struct Vec3 {
@@ -20,14 +21,18 @@ overload!((a: Vec3) * (b: f32) -> Vec3 { Vec3 { x: a.x * b, y: a.y * b, z: a.x *
 overload!((a: Vec3) / (b: Vec3) -> Vec3 { Vec3 { x: a.x / b.x, y: a.y / b.y, z: a.x / b.z }});
 overload!(- (a: Vec3) -> Vec3 {  Vec3 { x: -a.x, y: -a.y, z: -a.x }  });
 
-fn dot(u: Vec3, v: Vec3) -> f32{
+pub fn dot(u: Vec3, v: Vec3) -> f32{
    return u.x * v.x + u.y * v.y + u.z * v.z;  
 }
 
-fn cross(u: Vec3, v: Vec3) -> Vec3 {
+pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
    return Vec3{x: u.y * v.z - u.z * v.y, 
                y: u.z * v.x - u.x * v.z, 
                z: u.x * v.x - u.y * v.x };
+}
+
+pub fn write_color(pixel: Color) {
+      println!("{0} {1} {2}", ((pixel.x * 255.9999) as i32), ((pixel.y * 255.9999) as i32), ((pixel.z * 255.9999) as i32));
 }
 
 #[cfg(test)]
