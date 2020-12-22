@@ -18,6 +18,7 @@ overload!((a: &mut Vec3) /= (b: f32) { a.x *= 1.0/b; a.y *= 1.0/b; a.z *= 1.0/b 
 overload!((a: Vec3) - (b: Vec3) -> Vec3 { Vec3 { x: a.x - b.x, y: a.y - b.y, z: a.x - b.z }});
 overload!((a: Vec3) * (b: Vec3) -> Vec3 { Vec3 { x: a.x * b.x, y: a.y * b.y, z: a.x * b.z }});
 overload!((a: Vec3) * (b: f32) -> Vec3 { Vec3 { x: a.x * b, y: a.y * b, z: a.x * b }});
+overload!((b: f32) * (a: Vec3)  -> Vec3 { Vec3 { x: a.x * b, y: a.y * b, z: a.x * b }});
 overload!((a: Vec3) / (b: Vec3) -> Vec3 { Vec3 { x: a.x / b.x, y: a.y / b.y, z: a.x / b.z }});
 overload!(- (a: Vec3) -> Vec3 {  Vec3 { x: -a.x, y: -a.y, z: -a.x }  });
 

@@ -1,5 +1,7 @@
 mod vec3;
+mod ray;
 use vec3::Vec3 as Color;
+
 
 fn main() {
     const WIDTH: i32 = 1024;
