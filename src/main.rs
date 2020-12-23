@@ -16,7 +16,7 @@ fn hit_sphere(center: &Point3, radius: f32, r: &ray::Ray) -> bool {
 
 fn ray_color(ray: ray::Ray) -> Color {
     if hit_sphere(&Point3::new(0.0, 0.0, -1.0), 0.5, &ray) {
-        return Color::new(0.0, 1.0, 0.0);
+        return Color::new(1.0, 0.0, 0.0);
     }
     let unit_direction = &ray.direction.unit_vector();
     let t = 0.5 * (unit_direction.y +1.0);
@@ -32,16 +32,12 @@ fn main() {
 
     let viewport_height: f32 = 2.0;
     let viewport_width = ASPECT_RATIO * viewport_height;
-    eprintln!("viewport_width: {0}", viewport_width);
-    eprintln!("ASPECT_RATIO: {0}", ASPECT_RATIO);
-    eprintln!("viewport_height: {0}", viewport_height);
     let focal_legth = 1.0;
 
     let origin = Point3::new(0.0, 0.0, 0.0);
     let horizontal = Point3 { x: viewport_width as f32, y: 0.0, z: 0.0 };
     let vertical = Point3 {x: 0.0,  y: viewport_height, z: 0.0};
     let lower_left_corner = origin - horizontal/2.0 - vertical/2.0 - Vec3 { x: 0.0, y: 0.0, z: focal_legth };
-    eprintln!("{0}", lower_left_corner);
     print!("P3\n{0} {1}\n255\n", WIDTH, HEIGHT);
     let mut j = HEIGHT-1;
     eprintln!("Lines remaining {0}", j);

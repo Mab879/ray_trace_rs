@@ -54,6 +54,7 @@ overload!((a: Vec3) * (b: Vec3) -> Vec3 { Vec3 { x: a.x * b.x, y: a.y * b.y, z: 
 overload!((a: f32) * (b: Vec3) -> Vec3 { Vec3 { x: a * b.x, y: a * b.y, z: a * b.z}});
 overload!((b: Vec3) * (a: f32) -> Vec3 { Vec3 { x: a * b.x, y: a * b.y, z: a * b.z}});
 overload!((a: Vec3) / (b: f32) -> Vec3 { Vec3 { x: (1.0/b) * a.x, y: (1.0/b) * a.y, z: (1.0/b) * a.z}});
+overload!(- (a: Vec3) -> Vec3 { Vec3 {x: -1.0 * a.x, y: -1.0 * a.y, z: -1.0 * a.z}});
 
 
 #[cfg(test)]
@@ -78,9 +79,9 @@ mod tests {
       assert_eq!(a * b, b);
       assert_eq!(b * b, f);
       assert_eq!(e * a, e);
-      a *= 2.0;
+      a = a * 2.0;
       assert_eq!(a, b);
-      a *= 0.5;
+      a = a * 0.5;
       assert_eq!(a * 2.0, b);
       assert_eq!(2.0 * a, b);
       assert_eq!(b.dot(b), 12.0);
