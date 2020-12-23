@@ -2,9 +2,9 @@ use crate::vec3::Vec3;
 use Vec3 as Point3;
 
 #[derive(PartialEq, Debug, Clone, Copy)]
-struct Ray {
-    origin: Point3,
-    direction: Vec3,
+pub struct Ray {
+    pub origin: Point3,
+    pub direction: Vec3,
 }
 
 impl Ray {
