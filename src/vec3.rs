@@ -1,6 +1,7 @@
 extern crate overload;
 use overload::overload;
 use std::ops;
+use std::fmt;
 use Vec3 as Color;
 
 
@@ -10,19 +11,6 @@ pub struct Vec3 {
    pub y: f32,
    pub z: f32
 }
-
-overload!((a: Vec3) + (b: Vec3) -> Vec3 { Vec3 { x: a.x + b.x, y: a.y + b.y, z: a.z + b.z }});
-overload!((a: &mut Vec3) += (b: Vec3)  { a.x += b.x; a.y += b.y; a.z += b.z});
-overload!((a: &mut Vec3) *= (b: Vec3) { a.x *= b.x; a.y *= b.y; a.z *= b.z; });
-overload!((a: &mut Vec3) *= (b: f32) { a.x *= b; a.y *= b; a.z *= b; });
-overload!((a: &mut Vec3) /= (b: f32) { a.x *= 1.0/b; a.y *= 1.0/b; a.z *= 1.0/b });
-overload!((a: Vec3) - (b: Vec3) -> Vec3 { Vec3 { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z }});
-overload!((a: Vec3) * (b: Vec3) -> Vec3 { Vec3 { x: a.x * b.x, y: a.y * b.y, z: a.z * b.z }});
-overload!((a: Vec3) * (b: f32) -> Vec3 { Vec3 { x: a.x * b, y: a.y * b, z: a.z * b }});
-overload!((b: f32) * (a: Vec3)  -> Vec3 { Vec3 { x: a.x * b, y: a.y * b, z: a.z * b }});
-overload!((a: Vec3) / (b: Vec3) -> Vec3 { Vec3 { x: a.x / b.x, y: a.y / b.y, z: a.z / b.z }});
-overload!((a: Vec3) / (b: f32) -> Vec3 { Vec3 { x: a.x * (1.0/b), y: a.y * (1.0/b), z: a.z * (1.0/b) }});
-overload!(- (a: Vec3) -> Vec3 {  Vec3 { x: -a.x, y: -a.y, z: -a.z }  });
 
 pub fn write_color(pixel: Color) {
       println!("{0} {1} {2}", ((pixel.x * 255.9999) as i32), ((pixel.y * 255.9999) as i32), ((pixel.z * 255.9999) as i32));
@@ -42,20 +30,30 @@ impl Vec3 {
     }
 
     pub fn unit_vector(&self) -> Vec3 {
-      *self / *&self.length()
+      *self / self.length()
    }
 
    pub fn dot(&self, v: Vec3) -> f32{
-      return self.x * v.x + self.y * v.y + self.z * self.z;  
+      return self.x * v.x + self.y * v.y + self.z * v.z;  
    }
 
    pub fn cross(&self, v: Vec3) -> Vec3 {
-      return Vec3{x: self.y * v.z - self.z * v.y, 
-                  y: self.z * v.x - self.x * v.z, 
-                  z: self.x * v.y - self.y * v.x };
+      return Vec3::new(self.y * v.z - self.z * v.y, self.z * v.x - self.x * v.z, self.x * v.y - self.y * v.x )
    }
 }
 
+impl fmt::Display for Vec3 {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {}, {})", self.x, self.y, self.z)
+    }
+}
+
+overload!((a: Vec3) + (b: Vec3) -> Vec3 { Vec3 { x: a.x + b.x, y: a.y + b.y, z: a.z + b.z }});
+overload!((a: Vec3) - (b: Vec3) -> Vec3 { Vec3 { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z }});
+overload!((a: Vec3) * (b: Vec3) -> Vec3 { Vec3 { x: a.x * b.x, y: a.y * b.y, z: a.z * b.z }});
+overload!((a: f32) * (b: Vec3) -> Vec3 { Vec3 { x: a * b.x, y: a * b.y, z: a * b.z}});
+overload!((b: Vec3) * (a: f32) -> Vec3 { Vec3 { x: a * b.x, y: a * b.y, z: a * b.z}});
+overload!((a: Vec3) / (b: f32) -> Vec3 { Vec3 { x: (1.0/b) * a.x, y: (1.0/b) * a.y, z: (1.0/b) * a.z}});
 
 
 #[cfg(test)]
