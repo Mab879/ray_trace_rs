@@ -1,8 +1,12 @@
 mod vec3;
 mod ray;
+mod sphere;
+mod hittable;
+mod hittable_list;
 use vec3::Vec3 as Color;
 use vec3::Vec3 as Point3;
 use crate::vec3::Vec3;
+
 
 fn hit_sphere(center: &Point3, radius: f32, r: &ray::Ray) -> f32 {
     let oc = r.origin - *center;
