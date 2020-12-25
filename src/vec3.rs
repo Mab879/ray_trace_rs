@@ -2,18 +2,15 @@ extern crate overload;
 use overload::overload;
 use std::ops;
 use std::fmt;
-use Vec3 as Color;
-
+use crate::rtweekend::random_double;
+use rand::prelude::thread_rng;
+use crate::rtweekend::random_double_range;
 
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub struct Vec3 {
    pub x: f32,
    pub y: f32,
    pub z: f32
-}
-
-pub fn write_color(pixel: Color) {
-      println!("{0} {1} {2}", ((pixel.x * 255.9999) as i32), ((pixel.y * 255.9999) as i32), ((pixel.z * 255.9999) as i32));
 }
 
 impl Vec3 {
@@ -42,6 +39,37 @@ impl Vec3 {
    }
 }
 
+pub fn random() -> Vec3 {
+   let mut rng = thread_rng();
+   return Vec3::new(random_double(&mut rng), random_double(&mut rng), random_double(&mut rng));
+}
+
+pub fn random_range(min: f32, max: f32) -> Vec3 {
+   let mut rng = thread_rng();
+   return Vec3::new(random_double_range(&mut rng, min, max), random_double_range(&mut rng, min, max), random_double_range(&mut rng, min, max));
+}
+
+pub fn random_in_unit_sphere() -> Vec3 {
+   loop {
+      let p = random_range(-1.0, 1.0);
+      if p.length_squared() >= 1.0 { continue; }
+      return p
+   }
+}
+
+pub fn random_unit_vector() -> Vec3 {
+   return random_in_unit_sphere().unit_vector();
+}
+
+pub fn random_in_hemisphere(normal: &Vec3) -> Vec3 {
+   let in_unit_sphere = random_in_unit_sphere();
+   if in_unit_sphere.dot(*normal) > 0.0 {
+      return in_unit_sphere;
+   } else {
+      return -in_unit_sphere;
+   }
+}
+
 impl fmt::Display for Vec3 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "({}, {}, {})", self.x, self.y, self.z)
@@ -49,6 +77,7 @@ impl fmt::Display for Vec3 {
 }
 
 overload!((a: Vec3) + (b: Vec3) -> Vec3 { Vec3 { x: a.x + b.x, y: a.y + b.y, z: a.z + b.z }});
+overload!((a: &mut Vec3) += (b: Vec3) { a.x += b.x; a.y += b.y; a.z += b.z; });
 overload!((a: Vec3) - (b: Vec3) -> Vec3 { Vec3 { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z }});
 overload!((a: Vec3) * (b: Vec3) -> Vec3 { Vec3 { x: a.x * b.x, y: a.y * b.y, z: a.z * b.z }});
 overload!((a: f32) * (b: Vec3) -> Vec3 { Vec3 { x: a * b.x, y: a * b.y, z: a * b.z}});
