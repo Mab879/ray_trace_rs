@@ -13,6 +13,12 @@ pub struct Vec3 {
    pub z: f32
 }
 
+impl Default for Vec3 {
+   fn default() -> Vec3 {
+      return Vec3::new(0.0, 0.0, 0.0);
+   }
+}
+
 impl Vec3 {
    pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
         Vec3 { x, y, z }
@@ -36,6 +42,15 @@ impl Vec3 {
 
    pub fn cross(&self, v: Vec3) -> Vec3 {
       return Vec3::new(self.y * v.z - self.z * v.y, self.z * v.x - self.x * v.z, self.x * v.y - self.y * v.x )
+   }
+
+   pub fn near_zero(&self) -> bool {
+      let s = 1e-8;
+      return (self.x.abs() < s) && (self.y.abs() < s) && (self.z.abs() < s)
+   }
+
+   pub fn reflect(&self, n: Vec3) -> Vec3 {
+      return *self - 2.0 * self.dot(n) * n;
    }
 }
 
@@ -63,12 +78,14 @@ pub fn random_unit_vector() -> Vec3 {
 
 pub fn random_in_hemisphere(normal: &Vec3) -> Vec3 {
    let in_unit_sphere = random_in_unit_sphere();
-   if in_unit_sphere.dot(*normal) > 0.0 {
-      return in_unit_sphere;
+   return if in_unit_sphere.dot(*normal) > 0.0 {
+      in_unit_sphere
    } else {
-      return -in_unit_sphere;
+      -in_unit_sphere
    }
 }
+
+
 
 impl fmt::Display for Vec3 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

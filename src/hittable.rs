@@ -1,20 +1,25 @@
 use crate::vec3::Vec3;
 use crate::Vec3 as Point3;
+use crate::Vec3 as Color;
 use crate::ray::Ray;
+use crate::material::Material;
 
-#[derive(Clone, Copy)]
+
+#[derive(Default, Clone)]
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
     pub t: f32,
-    pub front_face: bool
+    pub front_face: bool,
+    pub material: Box<Material>
 }
 
 impl HitRecord {
     pub fn new() -> HitRecord {
         let p = Point3::new(0.0, 0.0, 0.0);
         let normal = Vec3::new(0.0, 0.0, 0.0);
-        return HitRecord {p, normal, t: 0.0, front_face: false};
+        let material = Box::<Material>::new(Material::Lambertian {albendo: Color::new(0.0, 0.0, 0.0)});
+        return HitRecord {p, normal, t: 0.0, front_face: false, material};
     }
 
     pub fn set_face_normal(&mut self, r: &Ray, outward_normal: &Vec3) {

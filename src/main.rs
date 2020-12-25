@@ -5,6 +5,8 @@ mod hittable;
 mod hittable_list;
 mod rtweekend;
 mod camera;
+mod material;
+
 use vec3::Vec3 as Color;
 use vec3::Vec3 as Point3;
 use crate::vec3::Vec3;
@@ -18,6 +20,7 @@ use crate::rtweekend::random_double;
 use rand::prelude::thread_rng;
 use crate::vec3::random_unit_vector;
 use ray::Ray;
+use crate::material::Material;
 
 const ASPECT_RATIO: f32 = 16.0/9.0;
 const WIDTH: i32 = 400;
@@ -40,8 +43,23 @@ fn ray_color(ray: ray::Ray, world: &HittableList, depth: i32) -> Color {
 
     let mut rec = HitRecord::new();
     if world.hit(&ray, 0.001, rtweekend::INFINTY, &mut rec) {
-        let target = rec.p + rec.normal + random_unit_vector();
-        return 0.5 * ray_color(Ray::new(rec.p, target - rec.p), world, depth-1);
+        let mut scattered: Ray = Ray {
+            origin: Vec3 {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0
+            },
+            direction: Vec3 {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0
+            }
+        };
+        let mut attenuation: Color = Color::new(0.0, 0.0, 0.0);
+        if rec.material.scatter(&ray, rec, &mut attenuation, &mut scattered) {
+            return attenuation * ray_color(scattered, world, depth-1);
+        }
+        return Color::new(0.0, 0.0, 0.0);
     }
     let unit_direction = &ray.direction.unit_vector();
     let t = 0.5 * (unit_direction.y + 1.0);
@@ -49,11 +67,30 @@ fn ray_color(ray: ray::Ray, world: &HittableList, depth: i32) -> Color {
 }
 
 
+// auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
+// auto material_center = make_shared<lambertian>(color(0.7, 0.3, 0.3));
+// auto material_left   = make_shared<metal>(color(0.8, 0.8, 0.8));
+// auto material_right  = make_shared<metal>(color(0.8, 0.6, 0.2));
+//
+// world.add(make_shared<sphere>(point3( 0.0, -100.5, -1.0), 100.0, material_ground));
+// world.add(make_shared<sphere>(point3( 0.0,    0.0, -1.0),   0.5, material_center));
+// world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.5, material_left));
+// world.add(make_shared<sphere>(point3( 1.0,    0.0, -1.0),   0.5, material_right));
+
 fn main() {
     // World
     let mut world: HittableList = HittableList::new();
-    world.add(Box::<Sphere>::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
-    world.add(Box::<Sphere>::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
+
+    let material_ground= Box::<Material>::new(Material::Lambertian {albendo: Color::new(0.8, 0.8, 0.0)});
+    let material_center = Box::<Material>::new(Material::Lambertian { albendo: Color::new (0.7, 0.3, 0.3)});
+    let material_left = Box::<Material>::new(Material::Metal {albendo: Color::new(0.8, 0.8, 0.8), fuzz: 0.3});
+    let material_right = Box::<Material>::new(Material::Metal { albendo: Color::new(0.8, 0.6, 0.2), fuzz: 1.0});
+
+    world.add(Box::<Sphere>::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0, material_ground)));
+    world.add(Box::<Sphere>::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5, material_center)));
+    world.add(Box::<Sphere>::new(Sphere::new(Point3::new(-1.0, 0.0, -1.0), 0.5, material_left)));
+    world.add(Box::<Sphere>::new(Sphere::new(Point3::new(1.0, 0.0, -1.0), 0.5, material_right)));
+
 
     // Camera
     let camera = Camera::new();
