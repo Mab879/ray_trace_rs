@@ -66,17 +66,6 @@ fn ray_color(ray: ray::Ray, world: &HittableList, depth: i32) -> Color {
     return (1.0-t) * Color { x: 1.0, y: 1.0, z: 1.0 } + t * Color { x: 0.5, y: 0.7, z: 1.0 };
 }
 
-
-// auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
-// auto material_center = make_shared<lambertian>(color(0.7, 0.3, 0.3));
-// auto material_left   = make_shared<metal>(color(0.8, 0.8, 0.8));
-// auto material_right  = make_shared<metal>(color(0.8, 0.6, 0.2));
-//
-// world.add(make_shared<sphere>(point3( 0.0, -100.5, -1.0), 100.0, material_ground));
-// world.add(make_shared<sphere>(point3( 0.0,    0.0, -1.0),   0.5, material_center));
-// world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.5, material_left));
-// world.add(make_shared<sphere>(point3( 1.0,    0.0, -1.0),   0.5, material_right));
-
 fn main() {
     // World
     let mut world: HittableList = HittableList::new();
@@ -94,8 +83,9 @@ fn main() {
     world.add(Box::<Sphere>::new(Sphere::new(Point3::new(1.0, 0.0, -1.0), 0.5, material_right)));
 
 
+
     // Camera
-    let camera = Camera::new();
+    let camera = Camera::new(Vec3::new(-2.0, 2.0, 1.0), Vec3::new(0.0, 0.0, -1.0), Vec3::new(0.0, 1.0, 0.0), 20.0, ASPECT_RATIO);
 
     print!("P3\n{0} {1}\n255\n", WIDTH, HEIGHT);
     let mut j = HEIGHT-1;
