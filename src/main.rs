@@ -82,10 +82,15 @@ fn main() {
     world.add(Box::<Sphere>::new(Sphere::new(Point3::new(-1.0, 0.0, -1.0), -0.4, material_left_2)));
     world.add(Box::<Sphere>::new(Sphere::new(Point3::new(1.0, 0.0, -1.0), 0.5, material_right)));
 
-
-
     // Camera
-    let camera = Camera::new(Vec3::new(-2.0, 2.0, 1.0), Vec3::new(0.0, 0.0, -1.0), Vec3::new(0.0, 1.0, 0.0), 20.0, ASPECT_RATIO);
+    let look_from = Point3::new(3.0, 3.0, 2.0);
+    let look_at  = Point3::new(0.0,0.0,-1.0);
+    let vup = Vec3::new(0.0, 1.0, 0.0);
+    let vfo_v: f32 = 20.0;
+    let aperture = 2.0;
+    let focus_dist  = (look_from-look_at).length();
+
+    let camera=  Camera::new(look_from, look_at, vup, vfo_v, ASPECT_RATIO, aperture, focus_dist);
 
     print!("P3\n{0} {1}\n255\n", WIDTH, HEIGHT);
     let mut j = HEIGHT-1;
