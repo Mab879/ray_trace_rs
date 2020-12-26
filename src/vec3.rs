@@ -52,6 +52,13 @@ impl Vec3 {
    pub fn reflect(&self, n: Vec3) -> Vec3 {
       return *self - 2.0 * self.dot(n) * n;
    }
+
+   pub fn refract (&self, n: &Vec3, etai_over_etat: f32) -> Vec3 {
+      let cos_theta = -self.dot(*n).min(1.0);
+      let r_out_prep: Vec3 = etai_over_etat * (*self + cos_theta * *n);
+      let r_out_parallel = -(1.0 - r_out_prep.length_squared()).abs().sqrt() * *n;
+      return  r_out_prep + r_out_parallel;
+   }
 }
 
 pub fn random() -> Vec3 {
