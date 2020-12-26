@@ -15,18 +15,59 @@ use crate::hittable_list::HittableList;
 use crate::hittable::HitRecord;
 use crate::hittable::Hittable;
 use crate::camera::Camera;
-use crate::rtweekend::clamp;
+use crate::rtweekend::{clamp, random_double_range};
 use crate::rtweekend::random_double;
 use rand::prelude::thread_rng;
 use crate::vec3::random_unit_vector;
 use ray::Ray;
 use crate::material::Material;
+use crate::material::Material::{Lambertian, Metal, Dielectric};
 
-const ASPECT_RATIO: f32 = 16.0/9.0;
-const WIDTH: i32 = 400;
+const ASPECT_RATIO: f32 = 3.0/2.0;
+const WIDTH: i32 = 1200;
 const HEIGHT: i32 = (WIDTH as f32 / ASPECT_RATIO) as i32;
-const SAMPLES_PER_PIXEL: i32 = 100;
+const SAMPLES_PER_PIXEL: i32 = 500;
 const MAX_DEPTH: i32 = 50;
+
+fn random_scene() -> HittableList {
+    let mut world = HittableList::new();
+    let mut rng = thread_rng();
+    let ground_material = Box::<Material>::new(Lambertian {albendo: Color::new(0.5, 0.5, 0.5)});
+    world.add(Box::<Sphere>::new(Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)));
+    let check_point = Point3::new(4.0, 0.2, 0.0);
+
+    for a in -11..11 {
+        for b in -11..11 {
+            let material_choice = random_double(&mut rng);
+            let center = Point3::new((a as f32) + 0.9 * random_double(&mut rng), 0.2, (b as f32) + 0.9 * random_double(&mut rng));
+            if (center - check_point).length() > 9.0 {
+                let sphere_material: Box<Material>;
+                if material_choice < 0.8 {
+                    let albendo = vec3::random() * vec3::random();
+                    sphere_material = Box::<Material>::new(Lambertian { albendo });
+                    world.add(Box::<Sphere>::new(Sphere::new(center, 0.2, sphere_material)));
+                } else if material_choice < 0.95 {
+                    let albendo = vec3::random() * vec3::random();
+                    let fuzz = random_double_range(&mut rng, 0.0, 0.5);
+                    sphere_material = Box::<Material>::new(Metal { albendo, fuzz });
+                    world.add(Box::<Sphere>::new(Sphere::new(center, 0.2, sphere_material)));
+                } else {
+                    sphere_material = Box::<Material>::new(Dielectric { ir: 1.5 });
+                    world.add(Box::<Sphere>::new(Sphere::new(center, 0.2, sphere_material)))
+                }
+            }
+        }
+    }
+    let material_1 = Box::<Material>::new(Dielectric {ir: 1.5});
+    world.add(Box::<Sphere>::new(Sphere::new(Point3::new(0.0, 1.0, 0.0), 1.0, material_1)));
+
+    let material_2 =  Box::<Material>::new( Lambertian { albendo: Color::new(0.4, 0.2, 0.1) });
+    world.add(Box::<Sphere>::new(Sphere::new(Point3::new(-4.0, 1.0, 0.0), 1.0, material_2)));
+
+    let material_3 = Box::<Material>::new(Metal { albendo: Color::new(0.7, 0.6, 0.5), fuzz: 0.0 });
+    world.add(Box::<Sphere>::new(Sphere::new(Point3::new(4.0, 1.0, 0.0), 1.0, material_3)));
+    return world;
+}
 
 pub fn write_color(pixel: Color) {
     let scale = 1.0/(SAMPLES_PER_PIXEL as f32);
@@ -66,29 +107,20 @@ fn ray_color(ray: ray::Ray, world: &HittableList, depth: i32) -> Color {
     return (1.0-t) * Color { x: 1.0, y: 1.0, z: 1.0 } + t * Color { x: 0.5, y: 0.7, z: 1.0 };
 }
 
+
+
 fn main() {
     // World
-    let mut world: HittableList = HittableList::new();
+    let mut world: HittableList = random_scene();
 
-    let material_ground= Box::<Material>::new(Material::Lambertian {albendo: Color::new(0.8, 0.8, 0.0)});
-    let material_center = Box::<Material>::new(Material::Lambertian {albendo: Color::new(0.1, 0.2, 0.5)});
-    let material_left = Box::<Material>::new(Material::Dielectric {ir: 1.5});
-    let material_left_2 = Box::<Material>::new(Material::Dielectric {ir: 1.5});
-    let material_right = Box::<Material>::new(Material::Metal { albendo: Color::new(0.8, 0.6, 0.2), fuzz: 0.0});
-
-    world.add(Box::<Sphere>::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0, material_ground)));
-    world.add(Box::<Sphere>::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5, material_center)));
-    world.add(Box::<Sphere>::new(Sphere::new(Point3::new(-1.0, 0.0, -1.0), 0.5, material_left)));
-    world.add(Box::<Sphere>::new(Sphere::new(Point3::new(-1.0, 0.0, -1.0), -0.4, material_left_2)));
-    world.add(Box::<Sphere>::new(Sphere::new(Point3::new(1.0, 0.0, -1.0), 0.5, material_right)));
 
     // Camera
-    let look_from = Point3::new(3.0, 3.0, 2.0);
-    let look_at  = Point3::new(0.0,0.0,-1.0);
+    let look_from = Point3::new(13.0, 2.0, 3.0);
+    let look_at  = Point3::new(0.0,0.0,0.0);
     let vup = Vec3::new(0.0, 1.0, 0.0);
     let vfo_v: f32 = 20.0;
-    let aperture = 2.0;
-    let focus_dist  = (look_from-look_at).length();
+    let aperture = 0.1;
+    let focus_dist  = 10.0;
 
     let camera=  Camera::new(look_from, look_at, vup, vfo_v, ASPECT_RATIO, aperture, focus_dist);
 
