@@ -8,13 +8,15 @@ use crate::material::Material;
 pub struct Sphere {
     center: Point3,
     radius: f32,
-    material: Box<Material>
+    material: Box<Material>,
+    radius_2: f32
 }
 
 
 impl Sphere {
     pub fn new(center: Point3, radius: f32, material: Box<Material>) -> Sphere {
-        Sphere { center, radius, material }
+        let radius_2 = radius * radius;
+        Sphere { center, radius, material, radius_2 }
     }
 
 }
@@ -24,7 +26,7 @@ impl Hittable for Sphere {
         let oc = r.origin - self.center;
         let a: f32 = r.direction.length_squared();
         let half_b: f32 = oc.dot(r.direction);
-        let c: f32 = oc.length_squared() - self.radius * self.radius;
+        let c: f32 = oc.length_squared() - self.radius_2;
         let discrimiant = half_b * half_b - a*c;
         if discrimiant < 0.0 {
             return false;

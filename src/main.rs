@@ -18,15 +18,14 @@ use crate::camera::Camera;
 use crate::rtweekend::{clamp, random_double_range};
 use crate::rtweekend::random_double;
 use rand::prelude::thread_rng;
-use crate::vec3::random_unit_vector;
 use ray::Ray;
 use crate::material::Material;
 use crate::material::Material::{Lambertian, Metal, Dielectric};
 
-const ASPECT_RATIO: f32 = 3.0/2.0;
+const ASPECT_RATIO: f32 = 16.0/9.0;
 const WIDTH: i32 = 1200;
 const HEIGHT: i32 = (WIDTH as f32 / ASPECT_RATIO) as i32;
-const SAMPLES_PER_PIXEL: i32 = 500;
+const SAMPLES_PER_PIXEL: i32 = 501;
 const MAX_DEPTH: i32 = 50;
 
 fn random_scene() -> HittableList {
@@ -39,8 +38,8 @@ fn random_scene() -> HittableList {
     for a in -11..11 {
         for b in -11..11 {
             let material_choice = random_double(&mut rng);
-            let center = Point3::new((a as f32) + 0.9 * random_double(&mut rng), 0.2, (b as f32) + 0.9 * random_double(&mut rng));
-            if (center - check_point).length() > 9.0 {
+            let center = Point3::new((a as f32) - 0.9 * random_double(&mut rng), 0.2, (b as f32) - 0.9 * random_double(&mut rng));
+            if (center - check_point).length() > 0.9 {
                 let sphere_material: Box<Material>;
                 if material_choice < 0.8 {
                     let albendo = vec3::random() * vec3::random();
@@ -111,11 +110,11 @@ fn ray_color(ray: ray::Ray, world: &HittableList, depth: i32) -> Color {
 
 fn main() {
     // World
-    let mut world: HittableList = random_scene();
+    let world: HittableList = random_scene();
 
 
     // Camera
-    let look_from = Point3::new(13.0, 2.0, 3.0);
+    let look_from = Point3::new(-13.0, 2.0, 3.0);
     let look_at  = Point3::new(0.0,0.0,0.0);
     let vup = Vec3::new(0.0, 1.0, 0.0);
     let vfo_v: f32 = 20.0;

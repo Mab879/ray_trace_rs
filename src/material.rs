@@ -46,7 +46,7 @@ impl Material {
     }
 
     fn scatter_metal(&albendo: &Color, fuzz: f32, _ray_in: &Ray, hit_record: HitRecord, attenuation: &mut Color, scattered: &mut Ray) -> bool {
-        let mut reflected: vec3::Vec3 = _ray_in.direction.unit_vector().reflect(hit_record.normal);
+        let reflected: vec3::Vec3 = _ray_in.direction.unit_vector().reflect(hit_record.normal);
         *scattered = Ray::new(hit_record.p, reflected + fuzz * vec3::random_in_unit_sphere());
         *attenuation = albendo;
         return scattered.direction.dot(hit_record.normal) > 0.0;
